@@ -20,9 +20,6 @@ A WebRTC-based video calling application that uses machine learning to optimize 
 - **DevOps**: Docker, GitHub Actions
 
 ## Architecture
-
-![System Architecture](docs/images/architecture.png)
-
 The system uses WebRTC for peer-to-peer communication and a central signaling server for connection establishment. The ML model analyzes network metrics to predict optimal video quality settings.
 
 ## Getting Started
