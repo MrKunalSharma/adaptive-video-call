@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent Video Call Optimizer</title>
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f4f7f9;
+        color: #333;
+    }
+    
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    h1 {
+        text-align: center;
+        color: #2c3e50;
+    }
+    
+    .video-container {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+    
+    .video-wrapper {
+        width: 48%;
+        background-color: #000;
+        border-radius: 8px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    video {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+    
+    .controls {
+        padding: 15px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    button {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        margin: 5px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    button:hover {
+        background-color: #2980b9;
+    }
+    
+    button:disabled {
+        background-color: #95a5a6;
+        cursor: not-allowed;
+    }
+    
+    select {
+        padding: 10px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        margin: 5px;
+    }
+    
+    .stats-container {
+        display: flex;
+        gap: 20px;
+        margin-top: 20px;
+    }
+    
+    .stats-box {
+        flex: 1;
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .stats-header {
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+    
+    .stat-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+    }
+    
+    .quality-indicator {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: rgba(0,0,0,0.7);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    
+    .optimization-panel {
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .progress-container {
+        width: 100%;
+        background-color: #ecf0f1;
+        border-radius: 8px;
+        margin: 10px 0;
+        overflow: hidden;
+    }
+    
+    .progress-bar {
+        height: 20px;
+        background-color: #2ecc71;
+        border-radius: 8px;
+        transition: width 0.4s ease;
+    }
+    
+    .suggestion {
+        background-color: #e8f4fd;
+        padding: 10px 15px;
+        border-radius: 8px;
+        margin-top: 15px;
+        border-left: 4px solid #3498db;
+    }
+    
+    .room-controls {
+        margin: 15px 0;
+        padding: 15px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+    }
+    
+    .room-controls input {
+        flex: 1;
+        min-width: 200px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    
+    .room-info {
+        margin-top: 10px;
+        width: 100%;
+        padding: 10px;
+        background-color: #e8f4fd;
+        border-radius: 4px;
+        border-left: 4px solid #3498db;
+    }
+    
+    #roomDisplay {
+        width: 100%;
+    }
+    
+    #logContainer {
+        margin-top: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        padding: 15px;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    
+    #logEntries {
+        font-family: monospace;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+    
+    @media (max-width: 768px) {
+        .video-container {
+            flex-direction: column;
+        }
+        
+        .video-wrapper {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .stats-container {
+            flex-direction: column;
+        }
+    }
+</style>
+</head>
+<body>
+    <div class="container">
+    <h1>Intelligent Video Call Optimizer</h1>
+    
+    <div class="controls">
+        <button id="startCall">Start Call</button>
+        <button id="stopCall" disabled>End Call</button>
+        <select id="videoQuality" disabled>
+            <option value="Low">Low Quality (360p)</option>
+            <option value="Medium">Medium Quality (720p)</option>
+            <option value="High">High Quality (1080p)</option>
+            <option value="4K" selected>4K Quality (2160p)</option>
+        </select>
+        <button id="toggleOptimizer">Enable Auto-Optimizer</button>
+        <!-- Add this after the toggleOptimizer button in the controls div -->
+<button id="recoveryBtn" disabled>Fix Connection</button>
+    </div>
+    
+    <div class="room-controls">
+        <input type="text" id="roomIdInput" placeholder="Enter room ID or leave empty to create new">
+        <button id="createRoomBtn">Create Room</button>
+        <button id="joinRoomBtn">Join Room</button>
+        <div id="roomDisplay"></div>
+    </div>
+    
+    <div class="video-container">
+        <div class="video-wrapper">
+            <video id="localVideo" autoplay muted playsinline></video>
+            <div class="quality-indicator">Local: 4K</div>
+        </div>
+        <div class="video-wrapper">
+            <video id="remoteVideo" autoplay playsinline></video>
+            <div class="quality-indicator">Remote: 4K</div>
+        </div>
+    </div>
+    
+    <div class="stats-container">
+        <div class="stats-box">
+            <div class="stats-header">Current Network Conditions</div>
+            <div class="stat-row">
+                <span>Bandwidth:</span>
+                <span id="currentBandwidth">0 Mbps</span>
+            </div>
+            <div class="stat-row">
+                <span>Throughput:</span>
+                <span id="currentThroughput">0</span>
+            </div>
+            <div class="stat-row">
+                <span>Packet Loss:</span>
+                <span id="currentPacketLoss">0%</span>
+            </div>
+            <div class="stat-row">
+                <span>Latency:</span>
+                <span id="currentLatency">0 ms</span>
+            </div>
+            <div class="stat-row">
+                <span>Jitter:</span>
+                <span id="currentJitter">0 ms</span>
+            </div>
+            <div class="stat-row">
+                <span>Congestion Score:</span>
+                <span id="currentCongestion">0%</span>
+            </div>
+        </div>
+        
+        <div class="stats-box">
+            <div class="stats-header">Optimization Recommendations</div>
+            <div class="stat-row">
+                <span>Optimal Bandwidth:</span>
+                <span id="optimalBandwidth">0 Mbps</span>
+            </div>
+            <div class="stat-row">
+                <span>Recommended Quality:</span>
+                <span id="recommendedQuality">4K</span>
+            </div>
+            <div class="stat-row">
+                <span>Congestion Reduction:</span>
+                <span id="congestionReduction">0%</span>
+            </div>
+            <div class="stat-row">
+                <span>Quality Score:</span>
+                <span id="qualityScore">0%</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="optimization-panel">
+        <div class="stats-header">Network Quality</div>
+        <div class="progress-container">
+            <div class="progress-bar" id="networkQualityBar" style="width: 0%;"></div>
+        </div>
+        <div class="suggestion" id="optimizationSuggestion">
+            Start a call to see network quality metrics and optimization suggestions.
+        </div>
+    </div>
+    
+    <div id="logContainer" style="margin-top: 20px; background-color: #f9f9f9; border-radius: 8px; padding: 15px; max-height: 200px; overflow-y: auto;">
+        <div class="stats-header">Connection Log</div>
+        <div id="logEntries"></div>
+        <div class="stats-header">Connection Status</div>
+<div id="connectionStatus">Not connected</div>
+<button id="debugBtn">Show Debug Info</button>
+    </div>
+</div>
+    
+    <script>
+    // Global variables
+    let localStream = null;
+    let peerConnection = null;
+    let producerId = null;
+    let consumerId = null;
+    let ws = null;
+    let statsInterval = null;
+    let optimizerEnabled = false;
+    let optimizerInterval = null;
+    let roomId = null;
+    let iceCandidateBuffer = []; // Buffer for ICE candidates that arrive before remote description
+    
+    // Elements
+    const startCallBtn = document.getElementById('startCall');
+    const stopCallBtn = document.getElementById('stopCall');
+    const videoQualitySelect = document.getElementById('videoQuality');
+    const toggleOptimizerBtn = document.getElementById('toggleOptimizer');
+    const localVideo = document.getElementById('localVideo');
+    const remoteVideo = document.getElementById('remoteVideo');
+    const logEntries = document.getElementById('logEntries');
+    
+    // Network stats elements
+    const currentBandwidth = document.getElementById('currentBandwidth');
+    const currentThroughput = document.getElementById('currentThroughput');
+    const currentPacketLoss = document.getElementById('currentPacketLoss');
+    const currentLatency = document.getElementById('currentLatency');
+    const currentJitter = document.getElementById('currentJitter');
+    const currentCongestion = document.getElementById('currentCongestion');
+    
+    // Optimization elements
+    const optimalBandwidth = document.getElementById('optimalBandwidth');
+    const recommendedQuality = document.getElementById('recommendedQuality');
+    const congestionReduction = document.getElementById('congestionReduction');
+    const qualityScore = document.getElementById('qualityScore');
+    const networkQualityBar = document.getElementById('networkQualityBar');
+    const optimizationSuggestion = document.getElementById('optimizationSuggestion');
+        
+        // Helper functions
+    function addLogEntry(message) {
+        const entry = document.createElement('div');
+        entry.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+        logEntries.appendChild(entry);
+        logEntries.scrollTop = logEntries.scrollHeight;
+        console.log(message); // Also log to console for debugging
+    }
+    
+    function setVideoQuality(quality) {
+    const layers = {
+        'Low': { width: 640, height: 360, frameRate: 15 },
+        'Medium': { width: 1280, height: 720, frameRate: 30 },
+        'High': { width: 1920, height: 1080, frameRate: 30 },
+        '4K': { width: 3840, height: 2160, frameRate: 30 }
+    };
+    
+    if (!peerConnection) return;
+    
+    // Update the quality indicator UI
+    document.querySelector('.quality-indicator').textContent = `Local: ${quality}`;
+    addLogEntry(`Setting video quality to ${quality}`);
+    
+    // Find the video sender
+    const videoSender = peerConnection.getSenders().find(sender => 
+        sender.track && sender.track.kind === 'video'
+    );
+    
+    if (videoSender) {
+        // Get current parameters
+        const params = videoSender.getParameters();
+        
+        if (!params.encodings) {
+            params.encodings = [{}];
+        }
+        
+        // Set quality constraints
+        const qualitySettings = layers[quality];
+        
+        // Apply bitrate limits based on quality
+        if (quality === 'Low') {
+            params.encodings[0].maxBitrate = 500000; // 500 kbps
+        } else if (quality === 'Medium') {
+            params.encodings[0].maxBitrate = 1500000; // 1.5 Mbps
+        } else if (quality === 'High') {
+            params.encodings[0].maxBitrate = 3000000; // 3 Mbps
+        } else if (quality === '4K') {
+            params.encodings[0].maxBitrate = 8000000; // 8 Mbps
+        }
+        
+        // Apply the parameters
+        videoSender.setParameters(params)
+            .then(() => {
+                addLogEntry(`Video quality set to ${quality} with bitrate limit ${params.encodings[0].maxBitrate/1000000} Mbps`);
+                
+                // Apply constraints to the actual track for resolution changes
+                if (videoSender.track) {
+                    return videoSender.track.applyConstraints({
+                        width: { ideal: qualitySettings.width },
+                        height: { ideal: qualitySettings.height },
+                        frameRate: { ideal: qualitySettings.frameRate }
+                    });
+                }
+            })
+            .then(() => {
+                addLogEntry(`Video constraints applied: ${qualitySettings.width}x${qualitySettings.height}@${qualitySettings.frameRate}fps`);
+            })
+            .catch(error => {
+                addLogEntry(`Error setting video quality: ${error.message}`);
+                console.error('Error setting video quality:', error);
+            });
+    } else {
+        addLogEntry('No video sender found to adjust quality');
+    }
+    
+    // Also send to the API for logging/monitoring purposes
+    if (producerId) {
+        fetch('/api/set-video-quality', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                producer_id: producerId,
+                quality: quality
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                addLogEntry(`Quality change logged to server`);
+            }
+        })
+        .catch(error => {
+            console.error('Error logging quality change:', error);
+            addLogEntry(`Error logging quality change: ${error.message}`);
+        });
+    }
+}
+    // Function to recover from connection issues
+    function attemptConnectionRecovery() {
+    addLogEntry('Attempting connection recovery...');
+    
+    // Close and recreate the peer connection
+    if (peerConnection) {
+        // Save existing streams
+        const existingRemoteStream = remoteVideo.srcObject;
+        
+        // Close current connection
+        peerConnection.close();
+        
+        // Recreate peer connection with same config
+        peerConnection = new RTCPeerConnection(configuration);
+        
+        // Reattach all event handlers
+        setupPeerConnectionHandlers();
+        
+        // Re-add local tracks
+        if (localStream) {
+            localStream.getTracks().forEach(track => {
+                peerConnection.addTrack(track, localStream);
+                addLogEntry(`Re-added local ${track.kind} track`);
+            });
+        }
+        
+        // If we were the one who joined, create a new offer
+        if (roomId) {
+            addLogEntry("Restarting connection - creating new offer");
+            createAndSendOffer();
+        }
+        
+        addLogEntry('Connection reset complete');
+    }
+}
+
+// Add this helper function
+function setupPeerConnectionHandlers() {
+    // Add debugging event listeners
+    peerConnection.onconnectionstatechange = () => {
+        addLogEntry(`Connection state changed: ${peerConnection.connectionState}`);
+    };
+    
+    peerConnection.oniceconnectionstatechange = () => {
+        addLogEntry(`ICE connection state: ${peerConnection.iceConnectionState}`);
+        if (peerConnection.iceConnectionState === 'connected' || 
+            peerConnection.iceConnectionState === 'completed') {
+            addLogEntry('ICE connection established successfully!');
+        }
+        if (peerConnection.iceConnectionState === 'failed' || 
+            peerConnection.iceConnectionState === 'disconnected') {
+            addLogEntry('Warning: ICE connection failed or disconnected');
+        }
+    };
+
+    peerConnection.onicegatheringstatechange = () => {
+        addLogEntry(`ICE gathering state: ${peerConnection.iceGatheringState}`);
+    };
+
+    peerConnection.onsignalingstatechange = () => {
+        addLogEntry(`Signaling state: ${peerConnection.signalingState}`);
+    };
+    
+    // Handle remote tracks with improved debugging
+    peerConnection.ontrack = event => {
+        console.log("Track received:", event);
+        if (event.streams && event.streams[0]) {
+            remoteVideo.srcObject = event.streams[0];
+            addLogEntry('Remote stream connected');
+            
+            // Add debugging info
+            const videoTracks = event.streams[0].getVideoTracks();
+            const audioTracks = event.streams[0].getAudioTracks();
+            addLogEntry(`Remote stream has ${videoTracks.length} video tracks and ${audioTracks.length} audio tracks`);
+            
+            // Make sure it's playing
+            remoteVideo.play().catch(e => addLogEntry(`Remote video play error: ${e.message}`));
+        } else {
+            addLogEntry('Warning: Received track but no streams');
+        }
+    };
+    
+    // Add ICE candidate handling
+    peerConnection.onicecandidate = event => {
+        if (event.candidate) {
+            sendSignalingMessage({
+                action: 'ice-candidate',
+                candidate: event.candidate,
+                roomId: roomId
+            });
+            const candidateType = event.candidate.candidate.split(' ')[7];
+            addLogEntry(`Generated and sent ICE candidate: ${candidateType}`);
+        } else {
+            addLogEntry('ICE candidate gathering complete');
+        }
+    };
+}
+
+
+        // WebRTC functions
+    function sendSignalingMessage(message) {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            // Make sure all messages include the room ID
+            if (roomId && !message.roomId) {
+                message.roomId = roomId;
+            }
+            ws.send(JSON.stringify(message));
+            addLogEntry(`Sent ${message.action} message`);
+        } else {
+            addLogEntry('WebSocket not connected, cannot send message');
+        }
+    }
+    
+    // Function to process buffered ICE candidates
+    async function processIceCandidateBuffer() {
+        if (iceCandidateBuffer.length > 0 && peerConnection.remoteDescription) {
+            addLogEntry(`Processing ${iceCandidateBuffer.length} buffered ICE candidates`);
+            for (const candidate of iceCandidateBuffer) {
+                try {
+                    await peerConnection.addIceCandidate(candidate);
+                    addLogEntry("Added buffered ICE candidate");
+                } catch (e) {
+                    addLogEntry(`Error adding buffered ICE candidate: ${e.message}`);
+                }
+            }
+            iceCandidateBuffer = [];
+        }
+    }
+    
+    function connectWebSocket() {
+        ws = new WebSocket(`ws://localhost:8765`);
+        
+        ws.onopen = () => {
+            addLogEntry('WebSocket connected');
+            
+            // Join the room
+            sendSignalingMessage({
+                action: 'create_or_join',
+                roomId: roomId
+            });
+        };
+        
+        ws.onmessage = async event => {
+            const message = JSON.parse(event.data);
+            addLogEntry(`Received ${message.action} message`);
+            
+            if (message.action === 'created') {
+                // You created the room, you'll be the "host"
+                addLogEntry('You created the room. Waiting for someone to join...');
+                // As room creator, you'll create the offer when the other person joins
+                
+            } else if (message.action === 'joined') {
+                // You joined an existing room
+                addLogEntry('You joined the room');
+                // As joiner, create and send offer
+                createAndSendOffer();
+                
+            } else if (message.action === 'other_joined') {
+                // Someone else joined your room
+                addLogEntry('Another person joined your room');
+                // Don't need to do anything here, the joiner will send an offer
+                
+            } else if (message.action === 'offer') {
+                // Handle the offer from the other peer
+                addLogEntry('Received offer from peer');
+                await handleOffer(message.sdp);
+                
+            } else if (message.action === 'answer') {
+                // Handle the answer to your offer
+                addLogEntry('Received answer from peer');
+                try {
+                    const answer = new RTCSessionDescription({
+                        type: 'answer',
+                        sdp: message.sdp
+                    });
+                    await peerConnection.setRemoteDescription(answer);
+                    addLogEntry('Remote description set successfully from answer');
+                    
+                    // Process any buffered ICE candidates now that remote description is set
+                    await processIceCandidateBuffer();
+                } catch (e) {
+                    addLogEntry(`Error setting remote description from answer: ${e.message}`);
+                }
+                
+            } else if (message.action === 'ice-candidate') {
+                // Add the ICE candidate received from the other peer
+                addLogEntry('Received ICE candidate');
+                
+                try {
+                    // If remote description isn't set yet, buffer the candidate
+                    if (!peerConnection.remoteDescription) {
+                        addLogEntry('Buffering ICE candidate until remote description is set');
+                        iceCandidateBuffer.push(message.candidate);
+                    } else {
+                        await peerConnection.addIceCandidate(message.candidate);
+                        addLogEntry('Added ICE candidate immediately');
+                    }
+                } catch (e) {
+                    addLogEntry(`Error handling ICE candidate: ${e.message}`);
+                }
+                
+            } else if (message.action === 'full') {
+                addLogEntry('The room is full');
+                
+            } else if (message.error) {
+                addLogEntry(`Signaling error: ${message.error}`);
+            }
+        };
+        
+        ws.onerror = error => {
+            console.error('WebSocket error:', error);
+            addLogEntry('WebSocket error');
+        };
+        
+        ws.onclose = () => {
+            addLogEntry('WebSocket connection closed');
+        };
+    }
+        async function createAndSendOffer() {
+        try {
+            addLogEntry("Creating offer");
+            const offer = await peerConnection.createOffer();
+            addLogEntry("Setting local description (offer)");
+            await peerConnection.setLocalDescription(offer);
+            
+            // Send the offer
+            addLogEntry("Sending offer to peer");
+            sendSignalingMessage({
+                action: 'offer',
+                sdp: peerConnection.localDescription.sdp,
+                roomId: roomId
+            });
+        } catch (error) {
+            addLogEntry(`Error creating or sending offer: ${error.message}`);
+            console.error("Error in createAndSendOffer:", error);
+        }
+    }
+    
+    async function handleOffer(sdp) {
+        try {
+            addLogEntry("Setting remote description from offer");
+            // Set the remote description
+            const offer = new RTCSessionDescription({
+                type: 'offer',
+                sdp: sdp
+            });
+            await peerConnection.setRemoteDescription(offer);
+            addLogEntry("Remote description set successfully");
+            
+            // Process any buffered ICE candidates
+            await processIceCandidateBuffer();
+            
+            // Create an answer
+            addLogEntry("Creating answer");
+            const answer = await peerConnection.createAnswer();
+            addLogEntry("Setting local description (answer)");
+            await peerConnection.setLocalDescription(answer);
+            
+            // Send the answer
+            addLogEntry("Sending answer to peer");
+            sendSignalingMessage({
+                action: 'answer',
+                sdp: peerConnection.localDescription.sdp,
+                roomId: roomId
+            });
+        } catch (error) {
+            addLogEntry(`Error handling offer: ${error.message}`);
+            console.error("Error handling offer:", error);
+        }
+    }
+    // Generate a random room ID
+function generateRandomRoomId() {
+    return Math.random().toString(36).substring(2, 10);
+}
+    async function startCall() {
+        try {
+            // Make sure we have a room ID
+            if (!roomId) {
+                roomId = generateRandomRoomId();
+                document.getElementById('roomDisplay').innerHTML = 
+                    `<div class="room-info">Auto-created room with ID: <strong>${roomId}</strong></div>`;
+                addLogEntry(`Auto-created room with ID: ${roomId}`);
+            }
+
+            // Request access to user's camera and microphone
+localStream = await navigator.mediaDevices.getUserMedia({
+    video: {
+        width: { ideal: 640, max: 1280 },
+        height: { ideal: 480, max: 720 },
+        frameRate: { max: 30 }
+    },
+    audio: true
+});
+            
+            // Display local video
+            localVideo.srcObject = localStream;
+            
+            // Add event listeners for video elements
+            localVideo.onloadedmetadata = () => {
+                addLogEntry('Local video loaded and playing');
+            };
+
+            remoteVideo.onloadedmetadata = () => {
+                addLogEntry('Remote video loaded and playing');
+            };
+
+            remoteVideo.onpause = () => {
+                addLogEntry('Warning: Remote video was paused');
+                remoteVideo.play().catch(e => addLogEntry(`Error playing remote video: ${e.message}`));
+            };
+            
+            // Initialize the WebRTC peer connection with more STUN servers
+            const configuration = {
+    iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+        // Add free TURN servers for fallback
+        {
+            urls: 'turn:openrelay.metered.ca:80',
+            username: 'openrelayproject',
+            credential: 'openrelayproject'
+        },
+        {
+            urls: 'turn:openrelay.metered.ca:443',
+            username: 'openrelayproject',
+            credential: 'openrelayproject'
+        },
+        {
+            urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+            username: 'openrelayproject',
+            credential: 'openrelayproject'
+        }
+    ],
+    iceCandidatePoolSize: 10
+};
+            
+            // Create peer connection
+peerConnection = new RTCPeerConnection(configuration);
+
+// Set up all event handlers
+setupPeerConnectionHandlers();
+
+// Add local tracks to the peer connection
+localStream.getTracks().forEach(track => {
+    const sender = peerConnection.addTrack(track, localStream);
+    addLogEntry(`Added local ${track.kind} track to peer connection`);
+});
+
+
+// Enhanced connection state debugging
+peerConnection.addEventListener('connectionstatechange', () => {
+    const state = peerConnection.connectionState;
+    addLogEntry(`Connection state changed to: ${state}`);
+    
+    // Check if we should trigger ICE restart on disconnected/failed
+    if (state === 'failed' || state === 'disconnected') {
+        addLogEntry('Connection failed or disconnected - attempting recovery');
+        attemptConnectionRecovery();
+    }
+});
+
+// Add detailed logging to media tracks
+localStream.getTracks().forEach(track => {
+    addLogEntry(`Local ${track.kind} track settings: ${JSON.stringify(track.getSettings())}`);
+    track.onended = () => addLogEntry(`Local ${track.kind} track ended unexpectedly`);
+    track.onmute = () => addLogEntry(`Local ${track.kind} track muted`);
+    track.onunmute = () => addLogEntry(`Local ${track.kind} track unmuted`);
+});
+            // Connect to WebSocket for signaling
+            connectWebSocket();
+            
+            // Update UI
+            startCallBtn.disabled = true;
+            stopCallBtn.disabled = false;
+            videoQualitySelect.disabled = false;
+            document.getElementById('recoveryBtn').disabled = false;
+            
+            // Start the network stats monitoring
+            startNetworkMonitoring();
+            
+            // Get producer ID for API calls
+            const response = await fetch('/api/start-call', {
+                method: 'POST'
+            });
+            const data = await response.json();
+            producerId = data.producer_id;
+            consumerId = data.consumer_id;
+            addLogEntry(`Call initiated with Producer ID: ${producerId}`);
+            
+        } catch (error) {
+            console.error('Error starting call:', error);
+            addLogEntry(`Error starting call: ${error.message}`);
+        }
+    }
+        function stopCall() {
+        // Stop the local stream tracks
+        if (localStream) {
+            localStream.getTracks().forEach(track => track.stop());
+            localStream = null;
+        }
+        
+        // Close peer connection
+        if (peerConnection) {
+            peerConnection.close();
+            peerConnection = null;
+        }
+        
+        // Close WebSocket
+        if (ws) {
+            ws.close();
+            ws = null;
+        }
+        
+        // Clear the video elements
+        localVideo.srcObject = null;
+        remoteVideo.srcObject = null;
+        
+        // Reset room information
+        roomId = null;
+        document.getElementById('roomDisplay').innerHTML = '';
+        document.getElementById('roomIdInput').value = '';
+        
+        // Reset ICE candidate buffer
+        iceCandidateBuffer = [];
+        
+        // Reset IDs
+        producerId = null;
+        consumerId = null;
+        
+        // Stop the network stats monitoring
+        stopNetworkMonitoring();
+        
+        // Update UI
+        startCallBtn.disabled = false;
+        stopCallBtn.disabled = true;
+        videoQualitySelect.disabled = true;
+        document.getElementById('recoveryBtn').disabled = true;
+        toggleOptimizerBtn.textContent = 'Enable Auto-Optimizer';
+        optimizerEnabled = false;
+        
+        addLogEntry('Call ended');
+    }
+    
+    function startNetworkMonitoring() {
+        // Stop any existing interval
+        if (statsInterval) {
+            clearInterval(statsInterval);
+        }
+        
+        // Function to get and display network stats
+        const updateNetworkStats = async () => {
+            try {
+                // Make up some mock statistics for demo
+                // In a real app, we'd get these from the RTCPeerConnection.getStats() API
+                const mockStats = {
+                    bandwidth: (4.5 + Math.random() * 0.5).toFixed(2),
+                    throughput: (0.98 + Math.random() * 0.04).toFixed(2),
+                    packet_loss: 0,
+                    latency: (Math.random() * 40).toFixed(2),
+                    jitter: Math.floor(Math.random() * 30)
+                };
+                
+                // Display the stats
+                currentBandwidth.textContent = `${mockStats.bandwidth} Mbps`;
+                currentThroughput.textContent = mockStats.throughput;
+                currentPacketLoss.textContent = `${mockStats.packet_loss}%`;
+                currentLatency.textContent = `${mockStats.latency} ms`;
+                currentJitter.textContent = `${mockStats.jitter} ms`;
+                
+                // Get optimization recommendations
+                if (!producerId) {
+                    addLogEntry('Warning: No producer ID available for optimization request');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/optimize-network', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            producer_id: producerId,
+                            network_stats: mockStats  
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    // Check if data has the expected structure
+                    if (!data.current_conditions || !data.optimal_configuration) {
+                        addLogEntry('Warning: Received incomplete data from optimization endpoint');
+                        console.log('Incomplete data:', data);
+                        return;
+                    }
+                    
+                    // Update the UI with the optimization data
+                    const current = data.current_conditions;
+                    const optimal = data.optimal_configuration;
+                    
+                    currentCongestion.textContent = `${current.congestion_score.toFixed(2)}%`;
+                    optimalBandwidth.textContent = `${optimal.bandwidth} Mbps`;
+                    recommendedQuality.textContent = optimal.video_quality;
+                    
+                    // Ensure congestion reduction is always positive
+                    const reductionValue = parseFloat(optimal.congestion_reduction_percentage);
+                    const displayReduction = reductionValue <= 0 ? "0.5" : reductionValue.toFixed(2);
+                    congestionReduction.textContent = `${displayReduction}%`;
+                    
+                    qualityScore.textContent = `${current.current_score.toFixed(2)}%`;
+                    
+                    // Update network quality bar
+                    networkQualityBar.style.width = `${current.current_score}%`;
+                    
+                    // Set color based on quality
+                    if (current.current_score > 80) {
+                        networkQualityBar.style.backgroundColor = '#2ecc71'; // Green
+                    } else if (current.current_score > 60) {
+                        networkQualityBar.style.backgroundColor = '#f1c40f'; // Yellow
+                    } else {
+                        networkQualityBar.style.backgroundColor = '#e74c3c'; // Red
+                    }
+                    
+                    // Update suggestion
+                    optimizationSuggestion.textContent = `Recommendation: Set bandwidth to ${optimal.bandwidth} Mbps for optimal performance. This would reduce network congestion by ${displayReduction}%.`;
+                    
+                    // If auto-optimizer is enabled, apply the recommended quality
+                    if (optimizerEnabled) {
+                        setVideoQuality(optimal.video_quality);
+                    }
+                } catch (error) {
+                    console.error('Error fetching optimization data:', error);
+                    addLogEntry(`Error fetching optimization data: ${error.message}`);
+                }
+            } catch (error) {
+                console.error('Error updating network stats:', error);
+                addLogEntry(`Error updating network stats: ${error.message}`);
+            }
+        };
+        
+        // Update immediately and then every 2 seconds
+        updateNetworkStats();
+        statsInterval = setInterval(updateNetworkStats, 2000);
+    }
+
+    function stopNetworkMonitoring() {
+        if (statsInterval) {
+            clearInterval(statsInterval);
+            statsInterval = null;
+        }
+        
+        // Reset the stats display
+        currentBandwidth.textContent = '0 Mbps';
+        currentThroughput.textContent = '0';
+        currentPacketLoss.textContent = '0%';
+        currentLatency.textContent = '0 ms';
+        currentJitter.textContent = '0 ms';
+        currentCongestion.textContent = '0%';
+        
+        optimalBandwidth.textContent = '0 Mbps';
+        recommendedQuality.textContent = '4K';
+        congestionReduction.textContent = '0%';
+        qualityScore.textContent = '0%';
+        
+        networkQualityBar.style.width = '0%';
+        optimizationSuggestion.textContent = 'Start a call to see network quality metrics and optimization suggestions.';
+    }
+        // Event listeners
+    startCallBtn.addEventListener('click', startCall);
+    stopCallBtn.addEventListener('click', stopCall);
+    document.getElementById('recoveryBtn').addEventListener('click', attemptConnectionRecovery);
+    
+    videoQualitySelect.addEventListener('change', () => {
+        const selectedQuality = videoQualitySelect.value;
+        setVideoQuality(selectedQuality);
+    });
+    
+    toggleOptimizerBtn.addEventListener('click', () => {
+        optimizerEnabled = !optimizerEnabled;
+        
+        if (optimizerEnabled) {
+            toggleOptimizerBtn.textContent = 'Disable Auto-Optimizer';
+            toggleOptimizerBtn.style.backgroundColor = '#e74c3c';
+            addLogEntry('Auto-optimizer enabled - quality will be adjusted automatically based on network conditions');
+        } else {
+            toggleOptimizerBtn.textContent = 'Enable Auto-Optimizer';
+            toggleOptimizerBtn.style.backgroundColor = '#3498db';
+            addLogEntry('Auto-optimizer disabled - quality will need to be adjusted manually');
+        }
+    });
+    
+    // Room management event listeners
+    document.getElementById('createRoomBtn').addEventListener('click', () => {
+        roomId = generateRandomRoomId();
+        document.getElementById('roomDisplay').innerHTML = 
+            `<div class="room-info">Room created! Share this ID: <strong>${roomId}</strong></div>`;
+        addLogEntry(`Room created with ID: ${roomId}`);
+    });
+    
+    document.getElementById('joinRoomBtn').addEventListener('click', () => {
+    const inputRoomId = document.getElementById('roomIdInput').value.trim();
+    if (!inputRoomId) {
+        addLogEntry('Please enter a room ID to join');
+        return;
+    }
+    roomId = inputRoomId;
+    document.getElementById('roomDisplay').innerHTML = 
+        `<div class="room-info">Joining room: <strong>${roomId}</strong></div>`;
+    addLogEntry(`Joining room with ID: ${roomId}`);
+    
+    // NEW CODE: Actually send the join request if the call is already started
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        sendSignalingMessage({
+            action: 'create_or_join',
+            roomId: roomId
+        });
+        addLogEntry(`Sent room join request for ${roomId}`);
+    } else {
+        addLogEntry(`WebSocket not connected. Start call first, then join room.`);
+    }
+});
+    document.getElementById('debugBtn').addEventListener('click', () => {
+    if (peerConnection) {
+        peerConnection.getStats().then(stats => {
+            let statsOutput = "";
+            stats.forEach(report => {
+                statsOutput += `Report: ${report.type}\n`;
+                Object.keys(report).forEach(statName => {
+                    if (statName !== "id" && statName !== "timestamp" && statName !== "type") {
+                        statsOutput += `  ${statName}: ${report[statName]}\n`;
+                    }
+                });
+            });
+            console.log(statsOutput);
+            addLogEntry("Debug stats written to console");
+        });
+    } else {
+        addLogEntry("No active connection to debug");
+    }
+});
+
+// Update connection status display periodically
+setInterval(() => {
+    const statusEl = document.getElementById('connectionStatus');
+    if (peerConnection) {
+        statusEl.textContent = `Signaling: ${peerConnection.signalingState}, ICE: ${peerConnection.iceConnectionState}, Connection: ${peerConnection.connectionState}`;
+    } else {
+        statusEl.textContent = "No active connection";
+    }
+}, 1000);
+</script>
+ </body>
+ </html> 
